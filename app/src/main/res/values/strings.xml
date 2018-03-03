@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AtPoint-Workshop</string>
+    <string name="title_activity_emergency">Map</string>
+
+    <string name="google_directions_api">AIzaSyDIvokxSloMG-M6HfkA_cUPJzBtQkBufJg</string>
+    <string name="title_activity_mech__traking">Map</string>
+
+</resources>

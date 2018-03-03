@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    tools:context=".CustommerCall">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/map_image"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/map"
+        app:civ_border_color="@android:color/holo_orange_dark"
+        app:civ_border_width="5dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/map_image"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout"
+        android:layout_marginTop="14dp"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtTime"
+            android:textStyle="bold"
+            android:textColor="@color/cast_expanded_controller_text_color"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtDistance"
+            android:textStyle="bold"
+            android:textColor="@color/cast_expanded_controller_progress_text_color"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtAddress"
+            android:textStyle="bold"
+            android:textColor="@color/cast_expanded_controller_progress_text_color"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="14dp"
+        android:layout_below="@id/linearLayout"
+        android:layout_height="wrap_content"
+        android:id="@+id/otherLayout">
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnAccept"
+            android:textColor="@color/cast_expanded_controller_progress_text_color"
+            android:text="Accept"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:background="@drawable/btn_sign_in_background"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+
+            />
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnDecline"
+            android:textColor="@color/btn_register"
+            android:text="Decline"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:background="@drawable/btn_register_background"
+            android:layout_marginLeft="6dp"
+            android:layout_weight="1"
+
+            />
+    </LinearLayout>
+
+
+</RelativeLayout>
