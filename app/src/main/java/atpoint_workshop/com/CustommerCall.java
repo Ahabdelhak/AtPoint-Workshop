@@ -70,6 +70,9 @@ public class CustommerCall extends AppCompatActivity {
                 Intent intent =new Intent(CustommerCall.this , Mech_Traking.class);
                 intent.putExtra("lat" , lat);
                 intent.putExtra("lng" , lng);
+
+                intent.putExtra("customerId" , customerId);
+
                 startActivity(intent);
                 finish();
             }
@@ -94,7 +97,7 @@ public class CustommerCall extends AppCompatActivity {
 
     private void cancleBooking(String customerId) {
         Token token=new Token(customerId);
-        Notification notification=new Notification("Notice","Mechanic has cancelled your request");
+        Notification notification=new Notification("Cancelled","Mechanic has cancelled your request");
         Sender sender=new Sender(token.getToken(),notification);
 
         mFCMService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {

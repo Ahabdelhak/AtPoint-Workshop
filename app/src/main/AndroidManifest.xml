@@ -36,10 +36,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".Emergency"
-            android:label="@string/title_activity_emergency" />
-
         <activity android:name=".CustommerCall" />
 
         <service android:name=".Services.MyFirebaseIdService">
@@ -55,7 +51,11 @@
 
         <activity
             android:name=".Mech_Traking"
-            android:label="@string/title_activity_mech__traking"></activity>
+            android:label="@string/title_activity_mech__traking" />
+        <activity
+            android:name=".EmergencyHome"
+            android:label="@string/title_activity_emergency_home"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -2,6 +2,7 @@ package atpoint_workshop.com.Common;
 
 import android.location.Location;
 
+import atpoint_workshop.com.Model.User;
 import atpoint_workshop.com.Remote.FCMClient;
 import atpoint_workshop.com.Remote.IFCMService;
 import atpoint_workshop.com.Remote.IGoogleAPI;
@@ -18,8 +19,9 @@ public class Common {
     public static final String user_driver_tbl="DriverInformation";//store all the info of riders who registered
     public static final String pickup_request_tbl="PickupRequest";//store information about pickup Request of user
 
-
     public static final String token_table="Tokens";
+
+    public static User currentUser ;
 
     public static Location mLastLocation=null;
 

@@ -4,16 +4,23 @@ import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.animation.Interpolator;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
@@ -66,10 +73,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Emergency extends FragmentActivity implements OnMapReadyCallback,
+public class EmergencyHome extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
+
 
     private GoogleMap mMap;
 
@@ -158,10 +167,23 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
         return -1;
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_emergency);
+        setContentView(R.layout.activity_emergency_home);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -214,7 +236,7 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
                 if (location_switch.isChecked()) {
                     destination = place.getAddress().toString();
                     destination = destination.replace(" ", "+");
-                    Log.d("Umair", destination);
+                    Log.d("AtPoint", destination);
                     getDirection();
                 } else {
                     Toast.makeText(getApplication(), "Please Change Your Status To Online", Toast.LENGTH_SHORT).show();
@@ -236,7 +258,9 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
         mService = Common.getGoogleAPI();
 
         updateFirebaseToken();
+
     }
+
 
     private void updateFirebaseToken() {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -340,7 +364,7 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
 
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-                    Toast.makeText(Emergency.this, "error" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyHome.this, "error" + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -505,26 +529,6 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
         }
     }
 
-    private void rotateMarker(final Marker mCurrent, final float i, GoogleMap mMap) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final float startRotation = mCurrent.getRotation();
-        final long duration = 1500;
-
-        final Interpolator interpolator = new LinearInterpolator();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed / duration);
-                float rot = t * i + (1 - t) * startRotation;
-                mCurrent.setRotation(-rot > 180 ? rot / 2 : rot);
-                if (t < 1.0) {
-                    handler.postDelayed(this, 16);
-                }
-            }
-        });
-    }
 
     private void startLocationUpdate() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -535,24 +539,70 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
     }
 
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(false);
-        mMap.setIndoorEnabled(false);
-        mMap.setBuildingsEnabled(false);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
 
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.emergency_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_history) {
+            // Handle the camera action
+        } else if (id == R.id.nav_way_bill) {
+
+        } else if (id == R.id.nav_help) {
+
+        } else if (id == R.id.nav_setting) {
+
+        } else if (id == R.id.nav_signout) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        displayLocation();
+        startLocationUpdate();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -562,19 +612,22 @@ public class Emergency extends FragmentActivity implements OnMapReadyCallback,
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        displayLocation();
-        startLocationUpdate();
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setTrafficEnabled(false);
+        mMap.setIndoorEnabled(false);
+        mMap.setBuildingsEnabled(false);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
 }

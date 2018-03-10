@@ -4,5 +4,11 @@
 
     <string name="google_directions_api">AIzaSyDIvokxSloMG-M6HfkA_cUPJzBtQkBufJg</string>
     <string name="title_activity_mech__traking">Map</string>
+    <string name="title_activity_emergency_home">Emergency Home</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 
 </resources>

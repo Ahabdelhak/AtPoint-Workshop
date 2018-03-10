@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -43,6 +45,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +57,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import atpoint_workshop.com.Common.Common;
-import atpoint_workshop.com.Helper.DirectionJSONParser;
+import atpoint_workshop.com.Helper.DirectionsJSONParser;
+import atpoint_workshop.com.Model.FCMResponse;
+import atpoint_workshop.com.Model.Notification;
+import atpoint_workshop.com.Model.Sender;
+import atpoint_workshop.com.Model.Token;
+import atpoint_workshop.com.Remote.IFCMService;
 import atpoint_workshop.com.Remote.IGoogleAPI;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,6 +83,11 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
     private Polyline direction ;
     IGoogleAPI mService ;
 
+    IFCMService mFCMService ;
+
+    GeoFire geoFire;
+
+    String customerId ;
     //play services
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
 
@@ -97,8 +111,12 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
             driverLat =getIntent().getDoubleExtra("lat" , -1.0 );
             driverlng =getIntent().getDoubleExtra("lng" , -1.0 );
 
+            customerId = getIntent().getStringExtra("customerId");
+
         }
         mService = Common.getGoogleAPI();
+        mFCMService = Common.getFcmService();
+
         setUpLocation();
     }
 
@@ -149,10 +167,71 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
 
         driverMarker = mMap.addCircle(new CircleOptions()
         .center(new LatLng(driverLat,driverlng))
-        .radius(10)
+        .radius(50) //50 m
         .strokeColor(Color.BLUE)
         .fillColor(0x220000FF)
         .strokeWidth(5.0f));
+
+
+        //Notification When Mechanic arrive
+        //Create Geo fecncing with radius 50 m
+        geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference(Common.mechanic_tbl));
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(driverLat,driverlng), 0.05f);
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+
+            //we need here customerid to send Notification
+                SendArrivedNotification(customerId);
+
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+
+
+    }
+
+    //Arriving Location
+    private void SendArrivedNotification(String customerId) {
+
+        Token token = new Token(customerId);
+        Notification notification = new Notification("Arrived" , String.format("The Mechanic %s has arrived at your location",Common.currentUser.getName()));
+
+        Sender sender =new Sender(token.getToken(), notification);
+
+        mFCMService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
+            @Override
+            public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                if(response.body().success != 1){
+                    Toast.makeText(Mech_Traking.this , "Failed !" , Toast.LENGTH_LONG).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+            }
+        });
+
     }
 
     private void startLocationUpdate() {
@@ -163,7 +242,7 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
-
+    // TODO: 3/4/2018  mechanicMarker.remove() and direction.remove() return null !!
     private void displayLocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -175,25 +254,18 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
                 final double latitud = Common.mLastLocation.getLatitude();
                 final double logitude = Common.mLastLocation.getLongitude();
 
-                if(mechanicMarker != null){
-                    mechanicMarker.remove();
-                    mechanicMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitud,logitude))
-                    .title("You")
-                    .icon(BitmapDescriptorFactory.defaultMarker()));
+              // if(mechanicMarker != null) {
+                    //mechanicMarker.remove();
+                    mechanicMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitud, logitude))
+                            .title("You")
+                            .icon(BitmapDescriptorFactory.defaultMarker()));
+                //}
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitud ,logitude),17.0f));
 
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitud ,logitude),17.0f));
-
-                    if(direction != null){
-                        direction.remove(); //remove old direction
+                    //if(direction != null){
+                        //direction.remove(); //remove old direction
                         getDirection();
-
-
-                    }
-                }
-
-
-
-
+                    //}
             } else {
 
             Log.d("Error" , "Can't get your location");
@@ -211,7 +283,7 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
                     "mode=driving&" +
                     "transit_routing_preference=less_driving&" +
                     "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
-                    "destination="+driverLat+","+driverlng + "&" +
+                    "destination="+driverLat+","+driverlng +"&"+
                     "key=" + getResources().getString(R.string.google_directions_api);
             Log.d("AtPoint", reuestApi);
             //Toast.makeText(getApplication(), "done" + reuestApi, Toast.LENGTH_LONG).show();
@@ -285,7 +357,7 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
             try {
                 jobect = new JSONObject(strings[0]);
 
-                DirectionJSONParser parser = new DirectionJSONParser();
+                DirectionsJSONParser parser = new DirectionsJSONParser();
                 routes = parser.parse(jobect);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -312,7 +384,7 @@ public class Mech_Traking extends FragmentActivity implements OnMapReadyCallback
                     HashMap<String, String> point = path.get(j);
 
                     double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lmg"));
+                    double lng = Double.parseDouble(point.get("lng"));
                     LatLng position = new LatLng(lat,lng);
 
                     points.add(position);

@@ -1,31 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
 
-    <LinearLayout
-        android:id="@+id/layout_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="4">
-        <fragment android:id="@+id/place_autocomplete_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="3"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            xmlns:android="http://schemas.android.com/apk/res/android" />
-    </LinearLayout>
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="atpoint_workshop.com.EmergencyHome"
+    tools:showIn="@layout/app_bar_emergency_home">
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/layout_panel"
-        tools:context="com.example.ah_abdelhak.driver_uber.Welcome_activity">
+        tools:context=".EmergencyHome">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -70,5 +59,3 @@
     </fragment>
 
 </RelativeLayout>
-
-
